@@ -8,3 +8,4 @@ pdf.tar.gz
 *.pyc
 .vimrc
 .vscode
+test.py
