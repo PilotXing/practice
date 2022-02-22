@@ -9,3 +9,4 @@ pdf.tar.gz
 .vimrc
 .vscode
 test.py
+*.ggb

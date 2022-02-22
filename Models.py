@@ -54,16 +54,16 @@ class Question(Base):
 
     def check_answer(self):
         my_answer = input("ANSWER((Q)uit (N)ext (S)how (R)emove):")
-        if my_answer in 'Qq':
+        if my_answer and my_answer in 'Qq':
             sys.exit()
-
-        elif my_answer in 'Rr':
-            self._remove()
-            return True
 
         elif my_answer in 'Ss':
             self._show_answer()
             return False
+
+        elif my_answer in 'Rr':
+            self._remove()
+            return True
 
         elif sorted(my_answer.lower()) == sorted(self.answer.lower()):
             cprint('✓'*width, 'grey', 'on_green')
