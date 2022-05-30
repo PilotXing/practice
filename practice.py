@@ -22,8 +22,7 @@ def auto_practice(session, category):
     start_time = time()
     while res:
         q = res.pop(0)
-#        if len(q.answer) > 1:
-        print(str(len(res)) + '|'+str(correct)+'/'+str(wrong))
+        print(str(len(res)) + '|'+str(correct)+'/'+str(wrong) , q.familiarity)
         q.show_question()
         if not q.check_answer():
             res.insert(4, q)

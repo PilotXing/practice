@@ -53,15 +53,28 @@ class Question(Base):
         session.close()
 
     def check_answer(self):
-        my_answer = input("ANSWER((Q)uit (N)ext (S)how (R)emove):")
-        if my_answer and my_answer in 'Qq':
+        raw_answer = input("ANSWER((Q)uit (N)ext (S)how (R)emove):")
+
+        my_answer = ''
+        for i in raw_answer:
+            if i not in 'abcdABCDQqSsRr1234':
+                print('invalid input')
+                break
+        # convert 1234 to abcd
+        for i in raw_answer:
+            if i in '1234':
+                my_answer += chr(int(i)+ord('a')-1)
+            else:
+                my_answer += i
+
+        if my_answer and my_answer[0] in 'Qq':
             sys.exit()
 
-        elif my_answer in 'Ss':
+        elif my_answer[0] in 'Ss':
             self._show_answer()
             return False
 
-        elif my_answer in 'Rr':
+        elif my_answer[0] in 'Rr':
             self._remove()
             return True
 
