@@ -67,14 +67,14 @@ class Question(Base):
             else:
                 my_answer += i
 
-        if my_answer and my_answer[0] in 'Qq':
+        if my_answer and my_answer.lower() in 'q':
             sys.exit()
 
-        elif my_answer[0] in 'Ss':
+        elif my_answer.lower() in 's':
             self._show_answer()
             return False
 
-        elif my_answer[0] in 'Rr':
+        elif my_answer.lower() in 'r':
             self._remove()
             return True
 
