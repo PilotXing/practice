@@ -37,7 +37,7 @@ class Question(Base):
 
     def show_question(self):
         cprint(str(self.id) + ('[S]' if self.qusetion_type == '单选题' else '[M]') + self.stem,
-               'grey', 'on_cyan' if self.qusetion_type == '单选题' else 'on_blue')
+               'grey' if self.qusetion_type == '单选题' else 'white', 'on_cyan' if self.qusetion_type == '单选题' else 'on_blue')
         for abcd, c in zip(self.char_list, self.choices):
             if c.choice == '':
                 break
