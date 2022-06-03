@@ -35,9 +35,20 @@ class Question(Base):
     familiarity = Column(Integer, default=-1)
     qusetion_type = Column(String)
 
-    def show_question(self):
+
+    def _show_question_info(self):
+        for i in self.historys:
+            cprint('■', 'green' if i.is_correct else 'red', end='')
+        print('{:.3f}'.format(self.familiarity))
+
+    def _show_question_stem(self):
         cprint(str(self.id) + ('[S]' if self.qusetion_type == '单选题' else '[M]') + self.stem,
                'grey' if self.qusetion_type == '单选题' else 'white', 'on_cyan' if self.qusetion_type == '单选题' else 'on_blue')
+
+
+    def show_question(self):
+        self._show_question_info()
+        self._show_question_stem()
         for abcd, c in zip(self.char_list, self.choices):
             if c.choice == '':
                 break
@@ -124,6 +135,6 @@ class History(Base):
 
 
 if __name__ == '__main__':
-    Base.metadata.drop_all(engine)
-    Base.metadata.create_all(engine)
+    # Base.metadata.drop_all(engine)
+    # Base.metadata.create_all(engine)
     pass
