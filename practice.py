@@ -13,21 +13,27 @@ start_number = 100
 end_number = 200
 
 
-def auto_practice(session, category):
+def get_questions(session, category):
     res = session.query(Question).filter(
         Question.category == category).filter(Question.familiarity < 100).all()
-    shuffle(res)
+    return res
+
+def show_answer(questions):
+    for q in questions:
+        q.show_answer()
+
+def auto_practice(questions):
+    shuffle(questions)
     wrong = 0
     correct = 0
     start_time = time()
-    while res:
-        q = res.pop(0)
-        # print(str(len(res)) + '|'+str(correct)+'/'+str(wrong) )
-        print('{:d}/{:d}/{:d}'.format(len(res),correct,wrong))
+    while questions:
+        q = questions.pop(0)
+        print('{:d}/{:d}/{:d}'.format(len(questions),correct,wrong))
         q.show_question()
         if not q.check_answer():
-            res.insert(4, q)
-            res.insert(-1, q)
+            questions.insert(4, q)
+            questions.insert(-1, q)
             wrong += 1
         correct += 1
 
@@ -46,4 +52,5 @@ def show_category(session):
 
 if __name__ == '__main__':
     c = show_category(session)
-    auto_practice(session, c)
+    questions = get_questions(session, c)
+    auto_practice(questions)

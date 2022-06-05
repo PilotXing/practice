@@ -1,4 +1,5 @@
 # -*- coding:UTF-8 -*-
+import sndhdr
 from sqlalchemy import Column, INTEGER, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
@@ -44,19 +45,41 @@ class Question(Base):
     def _show_question_stem(self):
         cprint(str(self.id) + ('[S]' if self.qusetion_type == '单选题' else '[M]') + self.stem,
                'grey' if self.qusetion_type == '单选题' else 'white', 'on_cyan' if self.qusetion_type == '单选题' else 'on_blue')
-
-
-    def show_question(self):
-        self._show_question_info()
-        self._show_question_stem()
+    
+    def _show_choices(self):
         for abcd, c in zip(self.char_list, self.choices):
             if c.choice == '':
                 break
             cprint(abcd+'.'+c.choice,  'grey', 'on_white')
 
-    def _show_answer(self):
-        print(self.answer)
+    def show_question(self):
+        self._show_question_info()
+        self._show_question_stem()
+        self._show_choices()
 
+    def _show_choice_with_answer(self):
+        for abcd, c in zip(self.char_list, self.choices):
+            if c.choice == '':
+                break
+            if abcd in self.answer:
+                cprint(abcd+'.'+c.choice, 'green',attrs=['bold','reverse'])
+            else:
+                cprint(abcd+'.'+c.choice)
+
+    def _update_familiarity(self):
+        familiarity = int(input(''))
+        if familiarity >1 & familiarity <101:
+            self.familiarity = familiarity
+            session.query(Question).filter(
+                Question.id == self.id).first().familiarity = familiarity
+        
+        
+    def show_answer(self):
+        self._show_question_info()
+        self._show_question_stem()
+        self._show_choice_with_answer()
+        input()
+        # self._update_familiarity()
     def _remove(self):
         q = session.query(Question).filter(Question.id == self.id).first()
         q.familiarity = 100
@@ -82,7 +105,7 @@ class Question(Base):
             sys.exit()
 
         elif my_answer.lower() in 's':
-            self._show_answer()
+            self.show_answer()
             return False
 
         elif my_answer.lower() in 'r':
@@ -105,7 +128,7 @@ class Question(Base):
         familiarity = session.query(Question).filter(
             Question.id == self.id).first().familiarity
         if familiarity == None or familiarity == -1:
-            familiarity = 50
+            familiarity = 50 # initiate familiarity
         new_familiarity = 100 - (100-familiarity)/3 * \
             2 if is_correct else familiarity/3
         session.query(Question).filter(
