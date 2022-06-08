@@ -140,6 +140,29 @@ class Question(Base):
         # 写入日期
         # 更新熟练度
 
+    @property
+    def get_history(self):
+        temp = session.query(History).filter(History.question_id == self.id).all()
+        res = []
+        for i in temp:
+            res.append(i.get_time_used)
+        return res
+
+    @property
+    def anverage_time(self):
+        total_time = 0
+        for i in self.historys:
+            print(i.get_time_used[0])
+
+    @property
+    def count_chars(self):
+        choice_length= 0
+        for i in self.choices:
+            choice_length+= len(i.choice)
+        return len(self.stem)+ choice_length
+
+    def speed(self):
+        pass
 
 class Choice(Base):
     __tablename__ = 'choices'
@@ -156,8 +179,15 @@ class History(Base):
     selected_answer = Column(String)
     is_correct = Column(Integer)
 
+    @property
+    def get_time_used(self):
+        time_used = 60
+        if self.id != 1:
+            time_used = self.date - session.query(History).filter(History.id == self.id-1).first().date
+        return time_used,self.is_correct
 
 if __name__ == '__main__':
     # Base.metadata.drop_all(engine)
     # Base.metadata.create_all(engine)
-    pass
+    a= session.query(Question).filter(Question.id ==4).first()
+    a.anverage_time()
