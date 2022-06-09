@@ -8,12 +8,14 @@ from sqlalchemy.orm.session import make_transient, sessionmaker
 from sqlalchemy.sql.schema import ForeignKey
 from sqlalchemy.sql.selectable import Select
 from sqlalchemy.sql.sqltypes import DateTime
-from datetime import datetime
+from datetime import datetime, timedelta
 from termcolor import cprint
 from os import get_terminal_size
 import sys
 
-width, hight = get_terminal_size()
+# width, hight = 50, 50
+WIDTH =50
+TIME_OUT_THR=30
 
 engine = create_engine("sqlite:///data.db")
 Base = declarative_base()
@@ -36,7 +38,6 @@ class Question(Base):
     familiarity = Column(Integer, default=-1)
     qusetion_type = Column(String)
 
-
     def _show_question_info(self):
         for i in self.historys:
             cprint('■', 'green' if i.is_correct else 'red', end='')
@@ -45,7 +46,7 @@ class Question(Base):
     def _show_question_stem(self):
         cprint(str(self.id) + ('[S]' if self.qusetion_type == '单选题' else '[M]') + self.stem,
                'grey' if self.qusetion_type == '单选题' else 'white', 'on_cyan' if self.qusetion_type == '单选题' else 'on_blue')
-    
+
     def _show_choices(self):
         for abcd, c in zip(self.char_list, self.choices):
             if c.choice == '':
@@ -62,24 +63,24 @@ class Question(Base):
             if c.choice == '':
                 break
             if abcd in self.answer:
-                cprint(abcd+'.'+c.choice, 'green',attrs=['bold','reverse'])
+                cprint(abcd+'.'+c.choice, 'green', attrs=['bold', 'reverse'])
             else:
                 cprint(abcd+'.'+c.choice)
 
     def _update_familiarity(self):
         familiarity = int(input(''))
-        if familiarity >1 & familiarity <101:
+        if familiarity > 1 & familiarity < 101:
             self.familiarity = familiarity
             session.query(Question).filter(
                 Question.id == self.id).first().familiarity = familiarity
-        
-        
+
     def show_answer(self):
         self._show_question_info()
         self._show_question_stem()
         self._show_choice_with_answer()
         input()
         # self._update_familiarity()
+
     def _remove(self):
         q = session.query(Question).filter(Question.id == self.id).first()
         q.familiarity = 100
@@ -113,11 +114,11 @@ class Question(Base):
             return True
 
         elif sorted(my_answer.lower()) == sorted(self.answer.lower()):
-            cprint('✓'*width, 'grey', 'on_green')
+            cprint('✓'*WIDTH, 'grey', 'on_green')
             self.update_last_practice(my_answer, True)
             return True
         else:
-            cprint('x'*width, 'grey', 'on_red')
+            cprint('x'*WIDTH, 'grey', 'on_red')
             self.update_last_practice(my_answer, False)
             return False
 
@@ -128,7 +129,7 @@ class Question(Base):
         familiarity = session.query(Question).filter(
             Question.id == self.id).first().familiarity
         if familiarity == None or familiarity == -1:
-            familiarity = 50 # initiate familiarity
+            familiarity = 50  # initiate familiarity
         new_familiarity = 100 - (100-familiarity)/3 * \
             2 if is_correct else familiarity/3
         session.query(Question).filter(
@@ -142,7 +143,8 @@ class Question(Base):
 
     @property
     def get_history(self):
-        temp = session.query(History).filter(History.question_id == self.id).all()
+        temp = session.query(History).filter(
+            History.question_id == self.id).all()
         res = []
         for i in temp:
             res.append(i.get_time_used)
@@ -150,19 +152,30 @@ class Question(Base):
 
     @property
     def anverage_time(self):
+        # total_time = timedelta(seconds=0)
         total_time = 0
+        data_avail = 0
         for i in self.historys:
-            print(i.get_time_used[0])
+            time_used = i.get_time_used[0]
+            # print(time_used)
+            if time_used < TIME_OUT_THR:
+                total_time += time_used
+                data_avail += 1
+        if data_avail:
+            return total_time/data_avail
+        else:
+            return 20
 
     @property
     def count_chars(self):
-        choice_length= 0
+        choice_length = 0
         for i in self.choices:
-            choice_length+= len(i.choice)
-        return len(self.stem)+ choice_length
-
+            choice_length += len(i.choice)
+        return len(self.stem) + choice_length
+    @property
     def speed(self):
-        pass
+        return self.anverage_time/self.count_chars
+
 
 class Choice(Base):
     __tablename__ = 'choices'
@@ -181,13 +194,18 @@ class History(Base):
 
     @property
     def get_time_used(self):
-        time_used = 60
+        time_used = timedelta(seconds=60)
         if self.id != 1:
-            time_used = self.date - session.query(History).filter(History.id == self.id-1).first().date
-        return time_used,self.is_correct
+            time_used = self.date - \
+                session.query(History).filter(
+                    History.id == self.id-1).first().date
+        return time_used.seconds, self.is_correct
+
 
 if __name__ == '__main__':
     # Base.metadata.drop_all(engine)
     # Base.metadata.create_all(engine)
-    a= session.query(Question).filter(Question.id ==4).first()
-    a.anverage_time()
+    a = session.query(Question).filter(Question.id == 7).first()
+    print(a.anverage_time)
+    print(a.count_chars)
+    print(a.speed)

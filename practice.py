@@ -17,7 +17,15 @@ def get_questions(session, category):
     res = session.query(Question).filter(
         Question.category == category).filter(Question.familiarity < 100).all()
     return res
+def get_all_questions(session):
+    return session.query(Question).all()
 
+def select_question(questions):
+    res=[]
+    for question in questions:
+        if question.familiarity<80 or question.anverage_time>10 or question.speed>0.15:
+            res.append(question)
+    return res
 def show_answer(questions):
     for q in questions:
         q.show_answer()
@@ -29,7 +37,7 @@ def auto_practice(questions):
     start_time = time()
     while questions:
         q = questions.pop(0)
-        print('{:d}/{:d}/{:d}'.format(len(questions),correct,wrong))
+        print('{:d}/{:d}/{:d}\t{speed:.2f}\t {anverage_time:.2f}'.format(len(questions),correct,wrong,speed=q.speed,anverage_time=q.anverage_time))
         q.show_question()
         if not q.check_answer():
             questions.insert(4, q)
@@ -51,6 +59,6 @@ def show_category(session):
 
 
 if __name__ == '__main__':
-    c = show_category(session)
-    questions = get_questions(session, c)
-    auto_practice(questions)
+    # c = show_category(session)
+    questions = get_all_questions(session)
+    auto_practice(select_question(questions))
