@@ -23,7 +23,7 @@ def get_all_questions(session):
 def select_question(questions):
     res=[]
     for question in questions:
-        if question.familiarity<80 or question.anverage_time>10 or question.speed>0.15:
+        if question.familiarity<86 or question.anverage_time>15 or question.speed>0.2:
             res.append(question)
     return res
 def show_answer(questions):

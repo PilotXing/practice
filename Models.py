@@ -1,17 +1,15 @@
 # -*- coding:UTF-8 -*-
-import sndhdr
-from sqlalchemy import Column, INTEGER, String, Integer
+import sys
+from datetime import datetime, timedelta
+from os import get_terminal_size
+
+from sqlalchemy import INTEGER, Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.session import make_transient, sessionmaker
 from sqlalchemy.sql.schema import ForeignKey
-from sqlalchemy.sql.selectable import Select
 from sqlalchemy.sql.sqltypes import DateTime
-from datetime import datetime, timedelta
 from termcolor import cprint
-from os import get_terminal_size
-import sys
 
 # width, hight = 50, 50
 WIDTH =50
