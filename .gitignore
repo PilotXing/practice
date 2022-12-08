@@ -10,3 +10,8 @@ pdf.tar.gz
 .vscode
 test.py
 *.ggb
+bin
+include
+.ipynb_checkpoints
+lib
+img
