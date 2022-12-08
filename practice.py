@@ -59,6 +59,9 @@ def show_category(session):
 
 
 if __name__ == '__main__':
-    # c = show_category(session)
-    questions = get_all_questions(session)
+    c = show_category(session)
+    print(c)
+    questions = get_questions(session,c)
+    print(questions)
+    # questions = get_all_questions(session)
     auto_practice(select_question(questions))
