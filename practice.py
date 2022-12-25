@@ -23,7 +23,7 @@ def get_all_questions(session):
 def select_question(questions):
     res=[]
     for question in questions:
-        if question.familiarity<86 or question.anverage_time>15 or question.speed>0.2:
+        if question.familiarity<99.9 or question.anverage_time>15 or question.speed>0.2:
             res.append(question)
     return res
 def show_answer(questions):
@@ -62,6 +62,5 @@ if __name__ == '__main__':
     c = show_category(session)
     print(c)
     questions = get_questions(session,c)
-    print(questions)
     # questions = get_all_questions(session)
     auto_practice(select_question(questions))
